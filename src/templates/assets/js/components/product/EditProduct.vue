@@ -1,0 +1,233 @@
+<template>
+  <section>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card shadow mb-4">
+          <div class="card-body">
+            <div class="form-group">
+              <label for="">Product Name</label>
+              <input
+                  type="text"
+                  v-model="product_name"
+                  placeholder="Product Name"
+                  class="form-control"
+              />
+            </div>
+            <div class="form-group">
+              <label for="">Product SKU</label>
+              <input
+                  type="text"
+                  v-model="product_sku"
+                  placeholder="Product Name"
+                  class="form-control"
+              />
+            </div>
+            <div class="form-group">
+              <label for="">Description</label>
+              <textarea
+                  v-model="description"
+                  id=""
+                  cols="30"
+                  rows="4"
+                  class="form-control"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow mb-4">
+          <div
+              class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+          >
+            <h6 class="m-0 font-weight-bold text-primary">Media</h6>
+          </div>
+          <div class="card-body border">
+            <vue-dropzone
+                ref="myVueDropzone"
+                id="dropzone"
+                :options="dropzoneOptions"
+            ></vue-dropzone>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card shadow mb-4">
+          <div
+              class="card-header py-3 d-flex flex-row align-items-center justify-content-between"
+          >
+            <h6 class="m-0 font-weight-bold text-primary">Variants</h6>
+          </div>
+          <div class="card-body">
+            <div class="row" v-for="(item, index) in product_variant">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="">Option</label>
+                  <select v-model="item.option" class="form-control">
+                    <option v-for="variant in variants" :value="variant.id">
+                      {{ variant.title }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-8">
+                <div class="form-group">
+                  <label
+                      v-if="product_variant.length != 1"
+                      @click="
+                      product_variant.splice(index, 1);
+                      checkVariant;
+                    "
+                      class="float-right text-primary"
+                      style="cursor: pointer"
+                  >Remove</label
+                  >
+                  <label v-else for="">.</label>
+                  <input-tag
+                      v-model="item.tags"
+                      @input="checkVariant"
+                      class="form-control"
+                  ></input-tag>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+              class="card-footer"
+              v-if="
+              product_variant.length < variants.length &&
+              product_variant.length < 3
+            "
+          >
+            <button @click="newVariant" class="btn btn-primary">
+              Add another option
+            </button>
+          </div>
+
+          <div class="card-header text-uppercase">Preview</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                <tr>
+                  <td>Variant</td>
+                  <td>Price</td>
+                  <td>Stock</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="variant_price in product_variant_prices">
+                  <td>{{ variant_price.title }}</td>
+                  <td>
+                    <input
+                        type="text"
+                        class="form-control"
+                        v-model="variant_price.price"
+                    />
+                  </td>
+                  <td>
+                    <input
+                        type="text"
+                        class="form-control"
+                        v-model="variant_price.stock"
+                    />
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button @click="updateProduct" type="submit" class="btn btn-lg btn-primary">
+      Save
+    </button>
+    <button type="button" class="btn btn-secondary btn-lg">Cancel</button>
+  </section>
+</template>
+<script>
+import vue2Dropzone from "vue2-dropzone";
+import "vue2-dropzone/dist/vue2Dropzone.min.css";
+import InputTag from "vue-input-tag";
+import axios from "axios";
+
+export default {
+  components: {
+    vueDropzone: vue2Dropzone,
+    InputTag,
+  },
+  props: {
+    variants: {
+      type: Array,
+      required: false,
+    },
+  },
+  data() {
+    return {
+      product_name: "",
+      product_sku: "",
+      description: "",
+      images: [],
+      product_variant: [
+        {
+          option: this.variants[0].id,
+          tags: [],
+        },
+      ],
+      product_variant_prices: [],
+      dropzoneOptions: {
+        url: "https://httpbin.org/post",
+        thumbnailWidth: 150,
+        maxFilesize: 0.5,
+        headers: { "My-Awesome-Header": "header value" },
+      },
+    };
+  },
+  methods: {
+    updateProduct() {
+      // Send an API request to update the product
+      // You can use libraries like Axios to make the request
+
+      // Example using Axios:
+      axios
+          .put(`/product/${this.$route.params.id}/edit/`, this.product)
+          .then(response => {
+            // Handle the successful response
+            console.log('Product updated:', response.data);
+            // Redirect to the product list page
+            this.$router.push('/product');
+          })
+          .catch(error => {
+            // Handle the error
+            console.error('Failed to update product:', error);
+          });
+    }
+  },
+  created() {
+    // Fetch the product data from the API
+    // You can use libraries like Axios to make the request
+
+    // Example using Axios:
+    var currentPath = window.location.pathname;
+    var pathSegments = currentPath.split('/');
+
+    var productId = pathSegments[2]
+    // debugger;
+    axios
+        .get(`/product/${productId}/`)
+        .then(response => {
+          // Set the fetched product data to the component's data
+          // this.product = response.data;
+          console.log(response.data.product[0].title)
+          this.product_name = response.data.product[0].title
+
+        })
+        .catch(error => {
+          // Handle the error
+          console.error('Failed to fetch product:', error);
+        });
+  }
+};
+</script>
