@@ -220,14 +220,59 @@ export default {
         .then(response => {
           // Set the fetched product data to the component's data
           // this.product = response.data;
-          console.log(response.data.product[0].title)
+          console.log(response.data)
           this.product_name = response.data.product[0].title
+          this.product_sku = response.data.product[0].sku
+          this.description = response.data.product[0].description
 
         })
         .catch(error => {
           // Handle the error
           console.error('Failed to fetch product:', error);
         });
-  }
+  },
+  newVariant() {
+      let all_variants = this.variants.map((el) => el.id);
+      let selected_variants = this.product_variant.map((el) => el.option);
+      let available_variants = all_variants.filter(
+        (entry1) => !selected_variants.some((entry2) => entry1 == entry2)
+      );
+      // console.log(available_variants)
+
+      this.product_variant.push({
+        option: available_variants[0],
+        tags: [],
+      });
+    },
+
+    // check the variant and render all the combination
+    checkVariant() {
+      let tags = [];
+      this.product_variant_prices = [];
+      this.product_variant.filter((item) => {
+        tags.push(item.tags);
+      });
+
+      this.getCombn(tags).forEach((item) => {
+        this.product_variant_prices.push({
+          title: item,
+          price: 0,
+          stock: 0,
+        });
+      });
+    },
+
+    // combination algorithm
+    getCombn(arr, pre) {
+      pre = pre || "";
+      if (!arr.length) {
+        return pre;
+      }
+      let self = this;
+      let ans = arr[0].reduce(function (ans, value) {
+        return ans.concat(self.getCombn(arr.slice(1), pre + value + "/"));
+      }, []);
+      return ans;
+    },
 };
 </script>
