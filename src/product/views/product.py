@@ -158,7 +158,7 @@ class UpdateProductView(generic.TemplateView):
         context['variants'] = list(variants.all())
         context['csrf_token'] = get_token(self.request)
         return context
-
+        
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
 

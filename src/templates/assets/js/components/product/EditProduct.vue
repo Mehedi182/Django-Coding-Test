@@ -203,35 +203,8 @@ export default {
             // Handle the error
             console.error('Failed to update product:', error);
           });
-    }
-  },
-  created() {
-    // Fetch the product data from the API
-    // You can use libraries like Axios to make the request
-
-    // Example using Axios:
-    var currentPath = window.location.pathname;
-    var pathSegments = currentPath.split('/');
-
-    var productId = pathSegments[2]
-    // debugger;
-    axios
-        .get(`/product/${productId}/`)
-        .then(response => {
-          // Set the fetched product data to the component's data
-          // this.product = response.data;
-          console.log(response.data)
-          this.product_name = response.data.product[0].title
-          this.product_sku = response.data.product[0].sku
-          this.description = response.data.product[0].description
-
-        })
-        .catch(error => {
-          // Handle the error
-          console.error('Failed to fetch product:', error);
-        });
-  },
-  newVariant() {
+    },
+    newVariant() {
       let all_variants = this.variants.map((el) => el.id);
       let selected_variants = this.product_variant.map((el) => el.option);
       let available_variants = all_variants.filter(
@@ -274,5 +247,35 @@ export default {
       }, []);
       return ans;
     },
+  },
+  created() {
+    // Fetch the product data from the API
+    // You can use libraries like Axios to make the request
+
+    // Example using Axios:
+    var currentPath = window.location.pathname;
+    var pathSegments = currentPath.split('/');
+
+    var productId = pathSegments[2]
+    // debugger;
+    axios
+        .get(`/product/${productId}/`)
+        .then(response => {
+          // Set the fetched product data to the component's data
+          // this.product = response.data;
+          console.log(response.data)
+          this.product_name = response.data.product[0].title
+          this.product_sku = response.data.product[0].sku
+          this.description = response.data.product[0].description
+          this.product_variant = response.data.product_variant
+          
+
+        })
+        .catch(error => {
+          // Handle the error
+          console.error('Failed to fetch product:', error);
+        });
+  },
+  
 };
 </script>
